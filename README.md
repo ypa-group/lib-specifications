@@ -14,8 +14,30 @@ A specification pattern implementation for Python with full type hint support, t
 
 ## Installation
 
+### From GitHub (main branch)
+
 ```bash
-pip install lib-specifications
+pip install git+https://github.com/ypa-group/lib-specifications.git
+```
+
+### From GitHub (dev branch)
+
+To install the latest version from the `dev` branch:
+
+```bash
+pip install git+https://github.com/ypa-group/lib-specifications.git@dev
+```
+
+For editable installation (development):
+
+```bash
+pip install -e git+https://github.com/ypa-group/lib-specifications.git@dev#egg=lib-specifications
+```
+
+Or add to your `requirements.txt`:
+
+```
+git+https://github.com/ypa-group/lib-specifications.git@dev
 ```
 
 ## Quick Start
