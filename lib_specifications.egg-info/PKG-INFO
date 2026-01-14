@@ -1,3 +1,32 @@
+Metadata-Version: 2.4
+Name: lib-specifications
+Version: 0.1.0
+Summary: A multi-tenant specification pattern implementation for Python
+Author-email: Technochezh <technochezh@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/ypa-group/lib-specifications
+Project-URL: Documentation, https://github.com/ypa-group/lib-specifications#readme
+Project-URL: Repository, https://github.com/ypa-group/lib-specifications
+Project-URL: Issues, https://github.com/ypa-group/lib-specifications/issues
+Keywords: specification,pattern,validation,rules,multi-tenant
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic>=2.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: pytest-xdist>=3.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+
 # lib-specifications
 
 A specification pattern implementation for Python with full type hint support, tree-based serialization, and async evaluation.
@@ -24,14 +53,14 @@ pip install lib-specifications
 
 ```python
 import asyncio
-from lib_specifications.core import (
+from lib_specifications import (
     FieldSpecification,
     AndSpecification,
     ParameterPathValue,
+    ParameterLiteralValue,
     SpecificationEvaluator,
     CallbackRegistry,
 )
-from lib_specifications.core.parameters import ParameterLiteralValue
 
 # Create field specifications
 field: ParameterPathValue = {
@@ -86,7 +115,7 @@ result = asyncio.run(evaluator.evaluate(user_spec, data))
 print(result)  # True
 
 # Get human-readable description
-print(user_spec.describe())  # (user.age >= 18 AND user.status == active)
+print(user_spec.describe())  # (user.age greater_than_or_equal 18 AND user.status equal active)
 ```
 
 ### Building from Specification Trees
@@ -94,7 +123,7 @@ print(user_spec.describe())  # (user.age >= 18 AND user.status == active)
 Specifications can be built from tree structures (TypedDict/JSON) for serialization:
 
 ```python
-from lib_specifications.core import (
+from lib_specifications import (
     SpecificationBuilder,
     SpecificationFieldLeafNode,
     SpecificationAndNode,
@@ -150,11 +179,11 @@ Field specifications can compare a field against a literal value or another fiel
 
 ```python
 from datetime import date
-from lib_specifications.core import (
+from lib_specifications import (
     FieldSpecification,
     ParameterPathValue,
+    ParameterLiteralValue,
 )
-from lib_specifications.core.parameters import ParameterLiteralValue
 
 # Compare field to literal value
 field: ParameterPathValue = {
@@ -194,8 +223,7 @@ data = {
     }
 }
 
-callback_registry = CallbackRegistry()
-evaluator = SpecificationEvaluator(callback_registry)
+evaluator = SpecificationEvaluator(CallbackRegistry())
 result = asyncio.run(evaluator.evaluate(date_spec, data))
 print(result)  # True
 ```
@@ -206,28 +234,27 @@ Register and use callbacks for custom logic:
 
 ```python
 from datetime import date
-from lib_specifications.core import (
+from lib_specifications import (
     CallbackSpecification,
     CallbackRegistry,
     SpecificationEvaluator,
     ParameterPathValue,
-    BaseCallback,
 )
+from lib_specifications.registries import BaseCallback
 
-# Define a callback class with qualname attribute
+# Define a callback class
 class IsWeekendCallback(BaseCallback):
     """Check if a date falls on a weekend."""
-    qualname = "is_weekend"
     
-    def __init__(self, dt: date):
-        self.dt = dt
+    def __init__(self, date: date):
+        self.date = date
     
     def __call__(self) -> bool:
-        return self.dt.weekday() >= 5
+        return self.date.weekday() >= 5
 
-# Register callback (uses qualname from the class)
+# Register callback
 callback_registry = CallbackRegistry()
-callback_registry.register(IsWeekendCallback)
+callback_registry.register("is_weekend", IsWeekendCallback)
 
 # Create callback specification
 date_param: ParameterPathValue = {
@@ -240,7 +267,7 @@ signature = callback_registry.get_signature("is_weekend")
 callback_spec = CallbackSpecification(
     callback_name="is_weekend",
     signature=signature,
-    params={"dt": date_param},
+    params={"date": date_param},
 )
 
 # Evaluate
@@ -265,8 +292,7 @@ The library includes the following operators:
 - `ends_with` - String ends with (for strings)
 
 ```python
-from lib_specifications.core.operators import get_operator, list_operators
-from lib_specifications import ParameterTypeEnum
+from lib_specifications import get_operator, list_operators
 
 # List all available operators
 print(list_operators())
@@ -283,13 +309,13 @@ print(operator.compatible_types)  # [ParameterTypeEnum.STR, ParameterTypeEnum.IN
 Build complex specifications with AND, OR, and NOT:
 
 ```python
-from lib_specifications.core import (
+from lib_specifications import (
     FieldSpecification,
     NotSpecification,
     OrSpecification,
     ParameterPathValue,
+    ParameterLiteralValue,
 )
-from lib_specifications.core.parameters import ParameterLiteralValue
 
 # Create field specifications
 age_field: ParameterPathValue = {
@@ -334,97 +360,20 @@ not_banned_spec = ~banned_spec
 final_spec = age_spec & not_banned_spec
 ```
 
-### Using Pre-defined Catalog
-
-The library includes a catalog of pre-defined callbacks, triggers, and interceptors:
-
-```python
-from lib_specifications.catalog.callback_registry import CALLBACK_REGISTRY
-from lib_specifications.catalog.trigger_registry import TRIGGER_REGISTRY
-from lib_specifications.catalog.interceptor_registry import INTERCEPTOR_REGISTRY
-
-# Use pre-defined callbacks
-is_today_callback = CALLBACK_REGISTRY.isToday
-has_onboarded_callback = CALLBACK_REGISTRY.hasOnboarded
-
-# Access miniapps and triggers
-welcome_miniapp = TRIGGER_REGISTRY.WELCOME
-intro_trigger = welcome_miniapp.INTRO
-
-# Access interceptors
-greetings_interceptor = INTERCEPTOR_REGISTRY.GREETINGS
-```
-
-### Using Catalog Callbacks in Specifications
-
-```python
-import asyncio
-from datetime import date
-from lib_specifications import (
-    SpecificationBuilder,
-    SpecificationEvaluator,
-    CallbackSpecification,
-    ParameterPathValue,
-)
-from lib_specifications.catalog.callback_registry import CALLBACK_REGISTRY
-
-# Use pre-defined callback from catalog
-signature = CALLBACK_REGISTRY.get_signature("isToday")
-
-# Create callback specification using catalog callback
-date_param: ParameterPathValue = {
-    "parameter_type": "path",
-    "data_type": "date",
-    "value": "event.date",
-}
-
-callback_spec = CallbackSpecification(
-    callback_name="isToday",
-    signature=signature,
-    params={"dt": date_param},
-)
-
-# Evaluate
-evaluator = SpecificationEvaluator(CALLBACK_REGISTRY)
-data = {"event": {"date": date.today()}}
-result = asyncio.run(evaluator.evaluate(callback_spec, data))
-print(result)  # True
-```
-
 ## Architecture
 
 The package is organized into:
 
-### Core Module (`lib_specifications.core`)
-
-- **base.py**: Base specification classes (BaseSpecification, AndSpecification, OrSpecification, NotSpecification)
-- **field.py**: FieldSpecification for field comparisons
-- **callback.py**: CallbackSpecification, BaseCallback, and CallbackRegistry
-- **operators.py**: Comparison operators (equal, greater_than, etc.) and OperatorRegistry
-- **parameters.py**: Parameter value types, schemas, and type enums
-- **builder.py**: SpecificationBuilder for building from trees
-- **evaluator.py**: SpecificationEvaluator for async evaluation
-- **tree.py**: Type definitions for specification trees (TypedDict)
-- **trigger.py**: MiniApp, Trigger, and TriggerRegistry
-- **interceptors.py**: InterceptorContentType and InterceptorContentTypeRegistry
-- **languages.py**: Language and LanguageEnum
-
-### Catalog Module (`lib_specifications.catalog`)
-
-Pre-defined callbacks, triggers, and interceptors:
-
-- **callback_registry/**: Pre-defined callback implementations
-  - `datetime_callbacks.py`: Date/time related callbacks (isToday, isDayAfterToday, etc.)
-  - `user_callbacks.py`: User-related callbacks (hasOnboarded, hasCreditScore, etc.)
-- **trigger_registry/**: Pre-defined MiniApps and Triggers
-  - Various miniapp modules (budget, calculator, credit_score, etc.)
-- **interceptor_registry/**: Pre-defined interceptor content types
-  - `greetings.py`: Greeting interceptors
-  - `advertising.py`: Advertising interceptors
-
-### Pydantic Models (`lib_specifications.pydantic_models`)
-
-Pydantic models for serialization and validation of specification trees and parameters.
+- **specifications**: Base specification classes and implementations
+  - `base.py`: BaseSpecification, AndSpecification, OrSpecification, NotSpecification
+  - `field.py`: FieldSpecification for field comparisons
+  - `callback.py`: CallbackSpecification for callback-based logic
+- **operators**: Comparison operators (equal, greater_than, etc.)
+- **parameters**: Parameter value types and schemas
+- **builders**: SpecificationBuilder for building from trees
+- **evaluators**: SpecificationEvaluator for async evaluation
+- **registries**: CallbackRegistry for managing callbacks
+- **specification_tree**: Type definitions for specification trees
 
 ## API Reference
 
@@ -449,8 +398,6 @@ Pydantic models for serialization and validation of specification trees and para
 
 - `CallbackRegistry`: Registry for managing callback classes
 - `OperatorRegistry`: Registry for managing operators (global instance)
-- `TriggerRegistry`: Registry for managing MiniApps and Triggers
-- `InterceptorContentTypeRegistry`: Registry for managing interceptor content types
 
 ### Parameters
 
@@ -474,29 +421,6 @@ Pydantic models for serialization and validation of specification trees and para
 - `SpecificationFieldLeafNode`: Field comparison leaf node
 - `SpecificationCallbackLeafNode`: Callback leaf node
 - `SpecificationAndNode`, `SpecificationOrNode`, `SpecificationNotNode`: Logical combinator nodes
-
-### Triggers and MiniApps
-
-- `MiniApp`: Represents a mini application with associated triggers
-- `Trigger`: Represents a trigger point in a mini app flow
-- `TriggerRegistry`: Registry for managing MiniApps and their triggers
-
-### Interceptors
-
-- `InterceptorContentType`: Defines types of content that can interrupt scenario flow
-- `InterceptorContentTypeEnum`: Enum for interceptor content types (GREETINGS, ADVERTISING)
-- `InterceptorContentTypeRegistry`: Registry for managing interceptor content types
-
-### Languages
-
-- `Language`: Represents a language with ID and display name
-- `LanguageEnum`: Enum for supported languages (ENGLISH, RUSSIAN, FRENCH, etc.)
-
-### Catalog
-
-- `CALLBACK_REGISTRY`: Pre-configured registry with datetime and user callbacks
-- `TRIGGER_REGISTRY`: Pre-configured registry with MiniApps and Triggers
-- `INTERCEPTOR_REGISTRY`: Pre-configured registry with interceptor content types
 
 ## License
 
