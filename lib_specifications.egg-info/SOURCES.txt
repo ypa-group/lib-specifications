@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+lib_specifications/__init__.py
+lib_specifications/parameters.py
+lib_specifications/py.typed
+lib_specifications/specification_tree.py
+lib_specifications.egg-info/PKG-INFO
+lib_specifications.egg-info/SOURCES.txt
+lib_specifications.egg-info/dependency_links.txt
+lib_specifications.egg-info/requires.txt
+lib_specifications.egg-info/top_level.txt
