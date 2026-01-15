@@ -17,14 +17,14 @@ context_schema = ContextSchema(
     }
 )
 
-available_specifications: list[BaseCallback] = [
+applicable_callbacks: set[BaseCallback] = {
     CALLBACK_REGISTRY.isTimeAfter,
     CALLBACK_REGISTRY.hasOnboarded,
-]
+}
 
 ADVERTISING_INTERCEPTOR_CT: InterceptorContentType = InterceptorContentType(
     name=InterceptorContentTypeEnum.ADVERTISING,
     description="Promotional content or advertisements",
-    applicable_specifications=set(available_specifications),
+    applicable_callbacks=applicable_callbacks,
     context_schema=context_schema,
 )

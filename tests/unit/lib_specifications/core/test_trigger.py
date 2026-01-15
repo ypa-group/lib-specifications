@@ -2,6 +2,7 @@
 
 import pytest
 
+from lib_specifications.core.callback import BaseCallback
 from lib_specifications.core.parameters import ContextSchema, ParameterSchema, ParameterTypeEnum
 from lib_specifications.core.trigger import (
     MiniApp,
@@ -122,11 +123,30 @@ class TestTrigger:
         assert trigger.qualname == "test_trigger"
         assert trigger.description is None
         assert trigger.context_schema is None
-        assert trigger.applicable_specifications is None
+        assert trigger.applicable_callbacks is None
         assert trigger.is_deprecated is False
 
     def test_trigger_creation_full(self, miniapp):
         """Test creating Trigger with all fields."""
+        # Create mock callback classes for testing
+        class MockCallback1(BaseCallback):
+            qualname = "spec1"
+
+            def __init__(self):
+                pass
+
+            def __call__(self) -> bool:
+                return True
+
+        class MockCallback2(BaseCallback):
+            qualname = "spec2"
+
+            def __init__(self):
+                pass
+
+            def __call__(self) -> bool:
+                return True
+
         context_schema = ContextSchema(
             parameters={
                 "user.id": ParameterSchema(
@@ -141,14 +161,14 @@ class TestTrigger:
             qualname="test_trigger",
             description="Test trigger",
             context_schema=context_schema,
-            applicable_specifications={"spec1", "spec2"},
+            applicable_callbacks={MockCallback1, MockCallback2},
             is_deprecated=True,
         )
         assert trigger.mini_app == miniapp
         assert trigger.qualname == "test_trigger"
         assert trigger.description == "Test trigger"
         assert trigger.context_schema == context_schema
-        assert trigger.applicable_specifications == {"spec1", "spec2"}
+        assert trigger.applicable_callbacks == {MockCallback1, MockCallback2}
         assert trigger.is_deprecated is True
 
     def test_trigger_empty_qualname_raises_error(self, miniapp):
@@ -173,6 +193,25 @@ class TestTrigger:
 
     def test_trigger_to_dict(self, miniapp):
         """Test to_dict method."""
+        # Create mock callback classes for testing
+        class MockCallback1(BaseCallback):
+            qualname = "spec1"
+
+            def __init__(self):
+                pass
+
+            def __call__(self) -> bool:
+                return True
+
+        class MockCallback2(BaseCallback):
+            qualname = "spec2"
+
+            def __init__(self):
+                pass
+
+            def __call__(self) -> bool:
+                return True
+
         context_schema = ContextSchema(
             parameters={
                 "user.id": ParameterSchema(
@@ -187,7 +226,7 @@ class TestTrigger:
             qualname="test_trigger",
             description="Test trigger",
             context_schema=context_schema,
-            applicable_specifications={"spec1", "spec2"},
+            applicable_callbacks={MockCallback1, MockCallback2},
             is_deprecated=True,
         )
         result = trigger.to_dict()
@@ -195,7 +234,7 @@ class TestTrigger:
         assert result["qualname"] == "test_trigger"
         assert result["description"] == "Test trigger"
         assert result["is_deprecated"] is True
-        assert set(result["applicable_specifications"]) == {"spec1", "spec2"}
+        assert set(result["applicable_callbacks"]) == {"spec1", "spec2"}
         assert result["context_schema"] is not None
         assert "mini_app" in result
 

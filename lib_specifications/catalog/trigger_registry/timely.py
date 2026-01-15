@@ -29,7 +29,7 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_APP_EXIT_LONG",
     description="Onboarding app exit long",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -38,7 +38,7 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_APP_EXIT_SHORT",
     description="Onboarding app exit short",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -47,7 +47,7 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_ARRAY_VERIFICATION_AFTER_24_HRS",
     description="Onboarding array verification after 24 hrs",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -56,7 +56,7 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_COMPLETED_CARDS_NOT_LINKED",
     description="Onboarding completed cards not linked",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -65,7 +65,7 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_COMPLETED_CS_NOT_LINKED",
     description="Onboarding completed CS not linked",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -74,7 +74,7 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_COMPLETED_NOTHING_LINKED",
     description="Onboarding completed nothing linked",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -83,5 +83,5 @@ TIMELY.register_trigger(
     qualname="ONBOARDING_EXIT_TO_GENERAL",
     description="Onboarding exit to general",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )

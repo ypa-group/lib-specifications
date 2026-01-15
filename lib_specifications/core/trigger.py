@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .callback import BaseCallback
 from .parameters import ContextSchema
 
 
@@ -11,7 +12,7 @@ class Trigger:
         - `qualname`: Qualname of the trigger.
         - `description`: Description of the trigger.
         - `context_schema`: Context schema of the trigger.
-        - `applicable_specifications`: Specifications that the trigger applies to.
+        - `applicable_callbacks`: Callbacks that the trigger applies to.
         - `is_deprecated`: Whether the trigger is deprecated.
     """
 
@@ -21,14 +22,14 @@ class Trigger:
         qualname: str,
         description: str | None = None,
         context_schema: ContextSchema | None = None,
-        applicable_specifications: set[str] | None = None,
+        applicable_callbacks: set[BaseCallback] | None = None,
         is_deprecated: bool = False,
     ):
         self.mini_app = mini_app
         self.qualname = qualname
         self.description = description
         self.context_schema = context_schema
-        self.applicable_specifications = applicable_specifications
+        self.applicable_callbacks = applicable_callbacks
         self.is_deprecated = is_deprecated
 
     @property
@@ -52,13 +53,17 @@ class Trigger:
         return self.fullname
 
     def to_dict(self) -> dict:
+        if self.applicable_callbacks:
+            callbacks = [callback.qualname for callback in self.applicable_callbacks]
+        else:
+            callbacks = []
         return {
             "fullname": self.fullname,
             "mini_app": self.mini_app.to_dict(),
             "qualname": self.qualname,
             "description": self.description,
             "context_schema": self.context_schema.to_dict() if self.context_schema else None,
-            "applicable_specifications": list(self.applicable_specifications) if self.applicable_specifications else [],
+            "applicable_callbacks": callbacks,
             "is_deprecated": self.is_deprecated,
         }
 
@@ -135,7 +140,7 @@ class MiniApp:
         qualname: str,
         description: str | None = None,
         context_schema: ContextSchema | None = None,
-        applicable_specifications: set[str] | None = None,
+        applicable_callbacks: set[BaseCallback] | None = None,
         is_deprecated: bool = False,
     ) -> None:
         trigger = Trigger(
@@ -143,7 +148,7 @@ class MiniApp:
             qualname=qualname,
             description=description,
             context_schema=context_schema,
-            applicable_specifications=applicable_specifications,
+            applicable_callbacks=applicable_callbacks,
             is_deprecated=is_deprecated,
         )
         self._triggers[trigger.qualname] = trigger

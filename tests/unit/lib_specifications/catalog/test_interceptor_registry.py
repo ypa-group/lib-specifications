@@ -61,13 +61,13 @@ class TestDefaultInterceptorRegistry:
         assert interceptor.context_schema is not None
         assert "session.last_interaction_at" in interceptor.context_schema.parameters
 
-    def test_greetings_interceptor_has_applicable_specifications(self):
-        """Test that GREETINGS interceptor has applicable specifications."""
+    def test_greetings_interceptor_has_applicable_callbacks(self):
+        """Test that GREETINGS interceptor has applicable callbacks."""
         interceptor = INTERCEPTOR_REGISTRY.get_by_name("GREETINGS")
-        assert interceptor.applicable_specifications is not None
-        assert len(interceptor.applicable_specifications) > 0
+        assert interceptor.applicable_callbacks is not None
+        assert len(interceptor.applicable_callbacks) > 0
         # Check that it contains expected callbacks
-        specs = interceptor.applicable_specifications
+        specs = interceptor.applicable_callbacks
         callback_qualnames = {cb.qualname for cb in specs}
         assert "isTimeAfter" in callback_qualnames
         assert "hasOnboarded" in callback_qualnames
@@ -78,13 +78,13 @@ class TestDefaultInterceptorRegistry:
         assert interceptor.context_schema is not None
         assert "session.last_interaction_at" in interceptor.context_schema.parameters
 
-    def test_advertising_interceptor_has_applicable_specifications(self):
-        """Test that ADVERTISING interceptor has applicable specifications."""
+    def test_advertising_interceptor_has_applicable_callbacks(self):
+        """Test that ADVERTISING interceptor has applicable callbacks."""
         interceptor = INTERCEPTOR_REGISTRY.get_by_name("ADVERTISING")
-        assert interceptor.applicable_specifications is not None
-        assert len(interceptor.applicable_specifications) > 0
+        assert interceptor.applicable_callbacks is not None
+        assert len(interceptor.applicable_callbacks) > 0
         # Check that it contains expected callbacks
-        specs = interceptor.applicable_specifications
+        specs = interceptor.applicable_callbacks
         callback_qualnames = {cb.qualname for cb in specs}
         assert "isTimeAfter" in callback_qualnames
         assert "hasOnboarded" in callback_qualnames

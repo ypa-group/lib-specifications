@@ -1,6 +1,17 @@
+from .actions import (
+    BaseAction,
+    ChangeAssistantAction,
+    DrawerAction,
+    FinishAction,
+    RepeatTransitionAction,
+    ToTriggerAction,
+    ZeroAction,
+)
 from .base import AndSpecification, BaseSpecification, NotSpecification, OrSpecification
 from .builder import SpecificationBuilder
+from .buttons_grid import ButtonsBar, ButtonsGrid, EmojiesBar
 from .callback import BaseCallback, CallbackRegistry, CallbackSpecification
+from .drawer import DrawerApp, DrawerAppType, DrawerRegistry, DrawerScreen, DrawerScreenOption, DrawerScreenType
 from .evaluator import SpecificationEvaluator
 from .field import FieldSpecification
 from .interceptors import (
@@ -86,4 +97,20 @@ __all__ = [
     "InterceptorContentTypeRegistry",
     "Language",
     "LanguageEnum",
+    "BaseAction",
+    "DrawerAction",
+    "ToTriggerAction",
+    "ChangeAssistantAction",
+    "RepeatTransitionAction",
+    "FinishAction",
+    "ZeroAction",
+    "ButtonsGrid",
+    "EmojiesBar",
+    "ButtonsBar",
+    "DrawerApp",
+    "DrawerScreen",
+    "DrawerScreenOption",
+    "DrawerAppType",
+    "DrawerScreenType",
+    "DrawerRegistry",
 ]

@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
-from ..core import ParameterSchema, ParameterTypeEnum, SignatureSchema
+from ..core import ContextSchema, ParameterSchema, ParameterTypeEnum, SignatureSchema
 
 
 class PydanticParameterSchema(BaseModel):
@@ -84,3 +84,40 @@ class PydanticSignatureSchema(BaseModel):
         """Convert to internal SignatureSchema dataclass."""
 
         return SignatureSchema(parameters={name: param.to_internal() for name, param in self.parameters.items()})
+
+
+class PydanticContextSchema(BaseModel):
+    """Schema for a context which should be extracted from a callable.
+    Allows paths for parameters.
+    """
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "parameters": {
+                    "user.age": {
+                        "name": "user.age",
+                        "data_type": "int",
+                        "required": True,
+                        "default": None,
+                    },
+                    "user.name": {
+                        "name": "user.name",
+                        "data_type": "str",
+                        "required": False,
+                        "default": "John Doe",
+                    },
+                }
+            }
+        },
+    )
+
+    parameters: dict[str, PydanticParameterSchema] = Field(
+        ..., description="Dictionary mapping parameter names (paths) to parameter schemas"
+    )
+
+    def to_internal(self):
+        """Convert to internal ContextSchema dataclass."""
+
+        return ContextSchema(parameters={name: param.to_internal() for name, param in self.parameters.items()})

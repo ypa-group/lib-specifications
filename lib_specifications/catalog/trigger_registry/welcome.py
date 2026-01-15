@@ -29,7 +29,7 @@ WELCOME.register_trigger(
     qualname="INTRO",
     description="Initial onboarding introduction screen",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -38,7 +38,7 @@ WELCOME.register_trigger(
     qualname="MORNING",
     description="Welcome morning",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -47,7 +47,7 @@ WELCOME.register_trigger(
     qualname="DAY",
     description="Welcome day",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -56,7 +56,7 @@ WELCOME.register_trigger(
     qualname="EVENING",
     description="Welcome evening",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -65,7 +65,7 @@ WELCOME.register_trigger(
     qualname="NIGHT",
     description="Welcome night",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -74,7 +74,7 @@ WELCOME.register_trigger(
     qualname="REPEATEDLY",
     description="Welcome repeatedly",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -83,5 +83,5 @@ WELCOME.register_trigger(
     qualname="RARELY",
     description="Welcome rarely",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )

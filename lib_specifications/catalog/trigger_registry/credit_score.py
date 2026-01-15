@@ -24,7 +24,7 @@ CREDIT_SCORE.register_trigger(
     qualname="CUSTOMIZE",
     description="Credit score customize",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 
@@ -33,5 +33,5 @@ CREDIT_SCORE.register_trigger(
     qualname="GENERIC",
     description="Credit score generic",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )

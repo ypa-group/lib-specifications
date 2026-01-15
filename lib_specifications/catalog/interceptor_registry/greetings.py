@@ -17,15 +17,15 @@ context_schema = ContextSchema(
     }
 )
 
-available_specifications: list[BaseCallback] = [
+applicable_callbacks: set[BaseCallback] = {
     CALLBACK_REGISTRY.isTimeAfter,
     CALLBACK_REGISTRY.hasOnboarded,
-]
+}
 
 
 GREETINGS_INTERCEPTOR_CT = InterceptorContentType(
     name=InterceptorContentTypeEnum.GREETINGS,
     description="Welcome messages like 'Good day' or 'Hi again'",
-    applicable_specifications=set(available_specifications),
+    applicable_callbacks=applicable_callbacks,
     context_schema=context_schema,
 )

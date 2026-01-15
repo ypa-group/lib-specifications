@@ -24,7 +24,7 @@ CALCULATOR.register_trigger(
     qualname="CUSTOMIZE",
     description="Calculator customize",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 
 # Register "GENERIC" trigger
@@ -32,5 +32,5 @@ CALCULATOR.register_trigger(
     qualname="GENERIC",
     description="Calculator generic",
     context_schema=None,  # TODO: add context schema
-    applicable_specifications=set(),  # TODO: add applicable specifications
+    applicable_callbacks=set(),  # TODO: add applicable callbacks
 )

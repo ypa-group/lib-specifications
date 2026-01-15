@@ -24,23 +24,23 @@ class InterceptorContentTypeEnum(str, Enum):
 class InterceptorContentType:
     name: InterceptorContentTypeEnum
     description: str | None = None
-    applicable_specifications: set[BaseCallback] | None = None
+    applicable_callbacks: set[BaseCallback] | None = None
     context_schema: ContextSchema | None = None
 
     def __str__(self) -> str:
         return self.name
 
     def to_dict(self) -> dict:
-        if self.applicable_specifications:
-            specs = []
-            for spec in self.applicable_specifications:
-                specs.append(spec.qualname)
+        if self.applicable_callbacks:
+            callbacks = []
+            for callback in self.applicable_callbacks:
+                callbacks.append(callback.qualname)
         else:
-            specs = []
+            callbacks = []
         return {
             "name": self.name,
             "description": self.description,
-            "applicable_specifications": specs,
+            "applicable_callbacks": callbacks,
             "context_schema": self.context_schema.to_dict() if self.context_schema else None,
         }
 

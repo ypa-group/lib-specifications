@@ -34,7 +34,7 @@ class TestInterceptorContentType:
         interceptor = InterceptorContentType(name=InterceptorContentTypeEnum.GREETINGS)
         assert interceptor.name == InterceptorContentTypeEnum.GREETINGS
         assert interceptor.description is None
-        assert interceptor.applicable_specifications is None
+        assert interceptor.applicable_callbacks is None
         assert interceptor.context_schema is None
 
     def test_interceptor_content_type_creation_full(self):
@@ -51,12 +51,12 @@ class TestInterceptorContentType:
         interceptor = InterceptorContentType(
             name=InterceptorContentTypeEnum.GREETINGS,
             description="Welcome messages",
-            applicable_specifications={"spec1", "spec2"},
+            applicable_callbacks={"spec1", "spec2"},
             context_schema=context_schema,
         )
         assert interceptor.name == InterceptorContentTypeEnum.GREETINGS
         assert interceptor.description == "Welcome messages"
-        assert interceptor.applicable_specifications == {"spec1", "spec2"}
+        assert interceptor.applicable_callbacks == {"spec1", "spec2"}
         assert interceptor.context_schema == context_schema
 
     def test_interceptor_content_type_str(self):
@@ -70,7 +70,7 @@ class TestInterceptorContentType:
         result = interceptor.to_dict()
         assert result["name"] == InterceptorContentTypeEnum.GREETINGS
         assert result["description"] is None
-        assert result["applicable_specifications"] == []
+        assert result["applicable_callbacks"] == []
         assert result["context_schema"] is None
 
     def test_interceptor_content_type_to_dict_full(self):
@@ -108,13 +108,13 @@ class TestInterceptorContentType:
         interceptor = InterceptorContentType(
             name=InterceptorContentTypeEnum.GREETINGS,
             description="Welcome messages",
-            applicable_specifications={MockCallback1, MockCallback2},
+            applicable_callbacks={MockCallback1, MockCallback2},
             context_schema=context_schema,
         )
         result = interceptor.to_dict()
         assert result["name"] == InterceptorContentTypeEnum.GREETINGS
         assert result["description"] == "Welcome messages"
-        assert set(result["applicable_specifications"]) == {"spec1", "spec2"}
+        assert set(result["applicable_callbacks"]) == {"spec1", "spec2"}
         assert result["context_schema"] is not None
         assert "parameters" in result["context_schema"]
 
@@ -201,12 +201,12 @@ class TestInterceptorContentTypeRegistry:
         result = registry.get_by_name("GREETINGS")
         assert result.context_schema == context_schema
 
-    def test_registry_with_applicable_specifications(self):
-        """Test registry with interceptors that have applicable specifications."""
+    def test_registry_with_applicable_callbacks(self):
+        """Test registry with interceptors that have applicable callbacks."""
         interceptor = InterceptorContentType(
             name=InterceptorContentTypeEnum.GREETINGS,
-            applicable_specifications={"spec1", "spec2", "spec3"},
+            applicable_callbacks={"spec1", "spec2", "spec3"},
         )
         registry = InterceptorContentTypeRegistry([interceptor])
         result = registry.get_by_name("GREETINGS")
-        assert result.applicable_specifications == {"spec1", "spec2", "spec3"}
+        assert result.applicable_callbacks == {"spec1", "spec2", "spec3"}
