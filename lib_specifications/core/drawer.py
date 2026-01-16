@@ -20,6 +20,12 @@ class DrawerScreenOption:
     value: str
     label: str
 
+    def to_dict(self) -> dict:
+        return {
+            "value": self.value,
+            "label": self.label,
+        }
+
 
 @dataclass
 class DrawerScreen:
@@ -29,12 +35,28 @@ class DrawerScreen:
     is_active: bool = True
     options: list[DrawerScreenOption] | None = None
 
+    def to_dict(self) -> dict:
+        return {
+            "value": self.value,
+            "screen_type": self.screen_type,
+            "label": self.label,
+            "is_active": self.is_active,
+            "options": [option.to_dict() for option in self.options] if self.options else None,
+        }
+
 
 @dataclass
 class DrawerApp:
     value: DrawerAppType
     label: str
     screens: dict[str, DrawerScreen]
+
+    def to_dict(self) -> dict:
+        return {
+            "value": self.value,
+            "label": self.label,
+            "screens": {screen.value: screen.to_dict() for screen in self.screens.values()},
+        }
 
 
 class DrawerRegistry:
@@ -51,3 +73,6 @@ class DrawerRegistry:
         if screen_value not in app.screens:
             raise ValueError(f"Invalid DrawerScreen: {screen_value}. Must be one of {list(app.screens.keys())}")
         return app.screens[screen_value]
+
+    def get_all_apps(self) -> list[DrawerApp]:
+        return list(self.apps.values())

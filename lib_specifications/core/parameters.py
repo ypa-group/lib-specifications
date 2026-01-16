@@ -293,7 +293,7 @@ def generate_signature_from_callable(callable: Callable) -> SignatureSchema:
 
 @dataclass
 class ContextSchema:
-    """Schema for a context which should be extracted from a callable.
+    """Schema for a context where we describe the data that is available for consumer.
     Allow paths for parameters.
     Example:
         >>> context = {
