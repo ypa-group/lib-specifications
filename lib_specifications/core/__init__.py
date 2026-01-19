@@ -52,6 +52,18 @@ from .tree import (
     SpecificationTree,
 )
 from .trigger import MiniApp, Trigger, TriggerRegistry
+from .widgets import (
+    BaseWidget,
+    BudgetAlertWidget,
+    BudgetCategoryAmountWidget,
+    CreditCardSummaryWidget,
+    CreditScoreValueWidget,
+    DebtFreeTimeWidget,
+    LanguageSelectorWidget,
+    PaymentReminderWidget,
+    WidgetRegistry,
+    WidgetType,
+)
 
 __all__ = [
     "BaseSpecification",
@@ -113,4 +125,14 @@ __all__ = [
     "DrawerAppType",
     "DrawerScreenType",
     "DrawerRegistry",
+    "WidgetType",
+    "WidgetRegistry",
+    "BaseWidget",
+    "LanguageSelectorWidget",
+    "CreditScoreValueWidget",
+    "BudgetCategoryAmountWidget",
+    "CreditCardSummaryWidget",
+    "PaymentReminderWidget",
+    "BudgetAlertWidget",
+    "DebtFreeTimeWidget",
 ]

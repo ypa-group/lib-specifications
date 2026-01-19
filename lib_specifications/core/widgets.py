@@ -714,3 +714,19 @@ class DebtFreeTimeWidget(BaseWidget):
         widget["card_id"] = card_id
         widget["payment_strategy"] = payment_strategy
         return widget
+
+
+class WidgetRegistry:
+    def __init__(self, widgets: list[BaseWidget]):
+        self.widgets = {widget.widget_type: widget for widget in widgets}
+
+    def get_widget(self, widget_type: WidgetType) -> BaseWidget:
+        if widget_type not in self.widgets:
+            raise ValueError(f"Invalid widget type: {widget_type}. Must be one of {list(self.widgets.keys())}")
+        return self.widgets[widget_type]
+
+    def get_all_widgets(self) -> list[BaseWidget]:
+        return list(self.widgets.values())
+
+
+

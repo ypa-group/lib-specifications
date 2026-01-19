@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytest
 
 from lib_specifications.catalog.trigger_registry.budget import BUDGET
+from lib_specifications.catalog.widget_registry import WIDGETS_REGISTRY
 from lib_specifications.core.parameters import ParameterTypeEnum
 from lib_specifications.core.widgets import (
     BaseWidget,
@@ -16,6 +17,7 @@ from lib_specifications.core.widgets import (
     DebtFreeTimeWidget,
     LanguageSelectorWidget,
     PaymentReminderWidget,
+    WidgetRegistry,
 )
 
 
@@ -785,3 +787,116 @@ class TestDebtFreeTimeWidget:
         assert result["months"] == 6
         assert result["card_id"] == "card_789"
         assert result["payment_strategy"] == "with_extra_payment"
+
+
+class TestWidgetsRegistry:
+    """Test widgets registry."""
+
+    def test_registry_is_initialized(self):
+        """Test that WIDGETS_REGISTRY is initialized."""
+        assert WIDGETS_REGISTRY is not None
+        assert isinstance(WIDGETS_REGISTRY, WidgetRegistry)
+        assert len(WIDGETS_REGISTRY.widgets) > 0
+
+    def test_all_widget_types_registered(self):
+        """Test that all widget types from WidgetType are in the registry."""
+        # Get all widget types from the registry
+        registered_types = set(WIDGETS_REGISTRY.widgets.keys())
+
+        # Expected widget types (from WidgetType literal)
+        expected_types = {
+            "language_selector",
+            "credit_score_value",
+            "budget_category_amount",
+            "credit_card_summary",
+            "payment_reminder",
+            "budget_alert",
+            "debt_free_time",
+        }
+
+        assert registered_types == expected_types, (
+            f"Registry types {registered_types} don't match expected types {expected_types}"
+        )
+
+    def test_registry_maps_to_correct_widget_instances(self):
+        """Test that each widget type maps to the correct widget instance."""
+        assert isinstance(WIDGETS_REGISTRY.get_widget("language_selector"), LanguageSelectorWidget)
+        assert isinstance(WIDGETS_REGISTRY.get_widget("credit_score_value"), CreditScoreValueWidget)
+        assert isinstance(WIDGETS_REGISTRY.get_widget("budget_category_amount"), BudgetCategoryAmountWidget)
+        assert isinstance(WIDGETS_REGISTRY.get_widget("credit_card_summary"), CreditCardSummaryWidget)
+        assert isinstance(WIDGETS_REGISTRY.get_widget("payment_reminder"), PaymentReminderWidget)
+        assert isinstance(WIDGETS_REGISTRY.get_widget("budget_alert"), BudgetAlertWidget)
+        assert isinstance(WIDGETS_REGISTRY.get_widget("debt_free_time"), DebtFreeTimeWidget)
+
+    def test_registry_widgets_are_base_widget_instances(self):
+        """Test that all registry widgets are instances of BaseWidget."""
+        for widget_type, widget_instance in WIDGETS_REGISTRY.widgets.items():
+            assert isinstance(widget_instance, BaseWidget), (
+                f"Widget instance for type '{widget_type}' is not an instance of BaseWidget"
+            )
+            assert widget_instance.widget_type == widget_type, (
+                f"Widget instance type '{widget_instance.widget_type}' doesn't match registry key '{widget_type}'"
+            )
+
+    def test_get_widget_method(self):
+        """Test that get_widget method returns correct widget instances."""
+        # Test getting each widget type
+        language_widget = WIDGETS_REGISTRY.get_widget("language_selector")
+        assert isinstance(language_widget, LanguageSelectorWidget)
+        assert language_widget.widget_type == "language_selector"
+
+        credit_score_widget = WIDGETS_REGISTRY.get_widget("credit_score_value")
+        assert isinstance(credit_score_widget, CreditScoreValueWidget)
+        assert credit_score_widget.widget_type == "credit_score_value"
+
+        budget_widget = WIDGETS_REGISTRY.get_widget("budget_category_amount")
+        assert isinstance(budget_widget, BudgetCategoryAmountWidget)
+        assert budget_widget.widget_type == "budget_category_amount"
+
+        card_widget = WIDGETS_REGISTRY.get_widget("credit_card_summary")
+        assert isinstance(card_widget, CreditCardSummaryWidget)
+        assert card_widget.widget_type == "credit_card_summary"
+
+        payment_widget = WIDGETS_REGISTRY.get_widget("payment_reminder")
+        assert isinstance(payment_widget, PaymentReminderWidget)
+        assert payment_widget.widget_type == "payment_reminder"
+
+        alert_widget = WIDGETS_REGISTRY.get_widget("budget_alert")
+        assert isinstance(alert_widget, BudgetAlertWidget)
+        assert alert_widget.widget_type == "budget_alert"
+
+        debt_widget = WIDGETS_REGISTRY.get_widget("debt_free_time")
+        assert isinstance(debt_widget, DebtFreeTimeWidget)
+        assert debt_widget.widget_type == "debt_free_time"
+
+    def test_get_widget_invalid_type(self):
+        """Test that get_widget raises ValueError for invalid widget type."""
+        with pytest.raises(ValueError, match="Invalid widget type"):
+            WIDGETS_REGISTRY.get_widget("invalid_widget_type")
+
+    def test_get_all_widgets(self):
+        """Test that get_all_widgets returns all registered widgets."""
+        all_widgets = WIDGETS_REGISTRY.get_all_widgets()
+        assert len(all_widgets) == 7
+        assert all(isinstance(widget, BaseWidget) for widget in all_widgets)
+
+        # Verify all widget types are present
+        widget_types = {widget.widget_type for widget in all_widgets}
+        expected_types = {
+            "language_selector",
+            "credit_score_value",
+            "budget_category_amount",
+            "credit_card_summary",
+            "payment_reminder",
+            "budget_alert",
+            "debt_free_time",
+        }
+        assert widget_types == expected_types
+
+    def test_widget_type_matches_registry_key(self):
+        """Test that each widget's widget_type matches its registry key."""
+        for widget_type in WIDGETS_REGISTRY.widgets.keys():
+            widget = WIDGETS_REGISTRY.get_widget(widget_type)
+            assert widget.widget_type == widget_type, (
+                f"Widget type '{widget.widget_type}' doesn't match registry key '{widget_type}'"
+            )
