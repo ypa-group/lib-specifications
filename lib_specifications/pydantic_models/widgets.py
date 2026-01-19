@@ -191,7 +191,7 @@ class PydanticBudgetAlertWidgetInput(PydanticBaseWidgetInput):
 
     widget_type: Literal["budget_alert"] = "budget_alert"
     params: dict[
-        Literal["category_name", "category_icon", "spent_amount", "period_type", "target_date", "alert_type"],
+        Literal["category_name", "category_icon", "spent_amount", "period_type", "target_date"],
         PydanticParameterValue,
     ] = Field(..., description="Widget parameters")
 

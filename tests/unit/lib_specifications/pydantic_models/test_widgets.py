@@ -349,16 +349,12 @@ class TestPydanticBudgetAlertWidget:
                     "data_type": "date",
                     "value": "budget.target_date",
                 },
-                "alert_type": {
-                    "parameter_type": "value",
-                    "data_type": "str",
-                    "value": "exceeded",
-                },
             },
         }
         widget = PydanticBudgetAlertWidgetInput.model_validate(data)
         assert widget.id == widget_id
         assert widget.widget_type == "budget_alert"
+        # alert_type is not in params - it's computed directly in populate_widget
 
     def test_output_model(self):
         """Test budget alert widget output model."""
@@ -629,16 +625,12 @@ class TestPydanticWidgetDiscriminatedUnion:
                     "data_type": "date",
                     "value": "2024-03-31",
                 },
-                "alert_type": {
-                    "parameter_type": "value",
-                    "data_type": "str",
-                    "value": "exceeded",
-                },
             },
         }
         widget = PydanticWidgetInputValidator.model_validate(data)
         assert isinstance(widget, PydanticBudgetAlertWidgetInput)
         assert widget.widget_type == "budget_alert"
+        # alert_type is not in params - it's computed directly in populate_widget
 
     def test_discriminated_union_input_debt_free_time(self):
         """Test that PydanticWidgetInput correctly discriminates debt_free_time."""

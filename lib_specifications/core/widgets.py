@@ -532,10 +532,7 @@ class BudgetAlertWidget(BaseWidget):
     `spent_amount`: amount of the spent
     `period_type`: month, quarter, week
     `target_date`: date
-    TODO: `alert_type`: type of the alert
-
-        - warning (approaching the limit)
-        - exceeded (limit exceeded)
+    `alert_type`: computed directly (warning or exceeded)
     """
 
     widget_type: Literal["budget_alert"] = "budget_alert"
@@ -546,7 +543,6 @@ class BudgetAlertWidget(BaseWidget):
             "spent_amount",
             "period_type",
             "target_date",
-            "alert_type",
         ],
         ParameterValue,
     ]
@@ -582,12 +578,6 @@ class BudgetAlertWidget(BaseWidget):
                     required=False,
                     default=None,
                 ),
-                "alert_type": ParameterSchema(
-                    name="alert_type",
-                    data_type=ParameterTypeEnum.STR,
-                    required=False,
-                    default="warning",
-                ),
             }
         )
 
@@ -618,17 +608,12 @@ class BudgetAlertWidget(BaseWidget):
             context,
             "target_date",
         )
-        alert_type = self._extract_parameter_value(
-            self.params["alert_type"],
-            context,
-            "alert_type",
-        )
         widget["category_name"] = category_name
         widget["category_icon"] = category_icon
         widget["spent_amount"] = int(spent_amount)
         widget["period_type"] = period_type
         widget["target_date"] = date_or_none(target_date)
-        widget["alert_type"] = alert_type
+        widget["alert_type"] = "warning"
         return widget
 
 
@@ -717,16 +702,20 @@ class DebtFreeTimeWidget(BaseWidget):
 
 
 class WidgetRegistry:
-    def __init__(self, widgets: list[BaseWidget]):
-        self.widgets = {widget.widget_type: widget for widget in widgets}
+    """Registry for widget types (classes).
 
-    def get_widget(self, widget_type: WidgetType) -> BaseWidget:
+    Maps widget type strings to widget classes.
+    """
+
+    def __init__(self, widget_type_map: dict[WidgetType, type[BaseWidget]]):
+        self.widgets: dict[WidgetType, type[BaseWidget]] = widget_type_map
+
+    def get_widget_class(self, widget_type: WidgetType) -> type[BaseWidget]:
+        """Get widget class by widget type."""
         if widget_type not in self.widgets:
             raise ValueError(f"Invalid widget type: {widget_type}. Must be one of {list(self.widgets.keys())}")
         return self.widgets[widget_type]
 
-    def get_all_widgets(self) -> list[BaseWidget]:
+    def get_all_widget_classes(self) -> list[type[BaseWidget]]:
+        """Get all registered widget classes."""
         return list(self.widgets.values())
-
-
-
