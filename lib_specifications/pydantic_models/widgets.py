@@ -4,7 +4,7 @@ from datetime import date
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from .parameter import PydanticParameterValue
 
@@ -115,9 +115,7 @@ class PydanticCreditScoreValueWidgetOutput(PydanticBaseWidgetOutput):
     score_color_zone: Literal["poor", "fair", "good", "very good", "excellent"] = Field(
         ..., description="Credit score color zone"
     )
-    trend: Literal["up", "down"] | None = Field(
-        default=None, description="Score trend (up/down) compared to previous"
-    )
+    trend: Literal["up", "down"] | None = Field(default=None, description="Score trend (up/down) compared to previous")
 
 
 # Budget Category Amount Widget
@@ -207,7 +205,7 @@ class PydanticBudgetAlertWidgetOutput(PydanticBaseWidgetOutput):
     spent_amount: int = Field(..., description="Spent amount")
     period_type: str | None = Field(default=None, description="Period type (month, quarter, week)")
     target_date: date | None = Field(default=None, description="Target date")
-    alert_type: str = Field(..., description="Alert type (warning, exceeded)")
+    alert_type: Literal["warning", "exceeded"] = Field(..., description="Alert type (warning, exceeded)")
 
 
 # Debt Free Time Widget
@@ -228,7 +226,9 @@ class PydanticDebtFreeTimeWidgetOutput(PydanticBaseWidgetOutput):
     years: int = Field(..., description="Number of years until debt free")
     months: int = Field(..., description="Number of months until debt free")
     card_id: str = Field(..., description="Card identifier")
-    payment_strategy: str = Field(..., description="Payment strategy (minimum_only, with_extra_payment)")
+    payment_strategy: Literal["minimum_only", "with_extra_payment"] = Field(
+        ..., description="Payment strategy (minimum_only, with_extra_payment)"
+    )
 
 
 # Union types for input and output
@@ -305,4 +305,3 @@ class PydanticWidgetOutputValidator:
     def __get_pydantic_core_schema__(cls, source_type, handler):
         """Tell Pydantic how to handle this type when used in annotations."""
         return handler(PydanticWidgetOutput)
-

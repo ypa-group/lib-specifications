@@ -1,6 +1,12 @@
 from typing import Protocol, runtime_checkable
 
-from ...core import MiniApp, Trigger
+from ...core import (
+    ContextSchema,
+    MiniApp,
+    ParameterSchema,
+    ParameterTypeEnum,
+    Trigger,
+)
 
 
 @runtime_checkable
@@ -23,7 +29,37 @@ BUDGET: BudgetMiniApp = MiniApp(
 BUDGET.register_trigger(
     qualname="CUSTOMIZE",
     description="Budget customize",
-    context_schema=None,  # TODO: add context schema
+    context_schema=ContextSchema(
+        parameters={
+            "category_name": ParameterSchema(
+                name="category_name",
+                data_type=ParameterTypeEnum.STR,
+                required=True,
+            ),
+            "amount": ParameterSchema(
+                name="amount",
+                data_type=ParameterTypeEnum.INT,
+                required=True,
+            ),
+            "currency": ParameterSchema(
+                name="currency",
+                data_type=ParameterTypeEnum.STR,
+                required=True,
+            ),
+            "period_type": ParameterSchema(
+                name="period_type",
+                data_type=ParameterTypeEnum.STR,
+                required=False,
+                default=None,
+            ),
+            "target_date": ParameterSchema(
+                name="target_date",
+                data_type=ParameterTypeEnum.DATE,
+                required=False,
+                default=None,
+            ),
+        }
+    ),
     applicable_callbacks=set(),  # TODO: add applicable callbacks
 )
 

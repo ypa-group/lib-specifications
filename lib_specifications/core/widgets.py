@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 from uuid import UUID
 
@@ -18,6 +18,12 @@ WidgetType = Literal[
     "budget_alert",
     "debt_free_time",
 ]
+
+
+def date_or_none(date_str: str) -> date | None:
+    if date_str is None:
+        return None
+    return datetime.strptime(date_str, "%Y-%m-%d").date()
 
 
 @dataclass(kw_only=True)
@@ -66,7 +72,12 @@ class BaseWidget:
         logger.debug(f"Successfully extracted value from path '{path}': {current}")
         return current
 
-    def _extract_parameter_value(self, parameter: ParameterValue, context: dict, parameter_name: str) -> Any:
+    def _extract_parameter_value(
+        self,
+        parameter: ParameterValue,
+        context: dict,
+        parameter_name: str,
+    ) -> Any:
         if parameter["parameter_type"] == "value":
             return parameter["value"]
         if parameter["parameter_type"] == "path":
@@ -92,8 +103,9 @@ class BaseWidget:
     def validate_params(self, params: dict) -> None:
         for param_name, param_value in self.signature_schema.parameters.items():
             if param_name not in params and param_value.required:
+                class_name = self.__class__.__name__
                 raise ValueError(
-                    f"{self.__class__.__name__} requires signature schema parameter {param_name} but it is not provided"
+                    f"{class_name} requires signature schema parameter {param_name} but it is not provided"
                 )
 
 
@@ -131,7 +143,13 @@ class CreditScoreValueWidget(BaseWidget):
     """
 
     widget_type: Literal["credit_score_value"] = "credit_score_value"
-    params: dict[Literal["current_score_value", "previous_score_value"], ParameterValue]
+    params: dict[
+        Literal[
+            "current_score_value",
+            "previous_score_value",
+        ],
+        ParameterValue,
+    ]
 
     @property
     def signature_schema(self) -> SignatureSchema:
@@ -151,7 +169,15 @@ class CreditScoreValueWidget(BaseWidget):
             }
         )
 
-    def _calculate_score_color_zone(self, score: int) -> Literal["poor", "fair", "good", "very good", "excellent"]:
+    def _calculate_score_color_zone(
+        self, score: int
+    ) -> Literal[
+        "poor",
+        "fair",
+        "good",
+        "very good",
+        "excellent",
+    ]:
         if score < 580:
             return "poor"
         elif score < 670:
@@ -167,10 +193,16 @@ class CreditScoreValueWidget(BaseWidget):
         widget = super().populate_widget(context)
 
         current_score_value = int(
-            self._extract_parameter_value(self.params["current_score_value"], context, "current_score_value")
+            self._extract_parameter_value(
+                self.params["current_score_value"],
+                context,
+                "current_score_value",
+            )
         )
         previous_score_value = self._extract_parameter_value(
-            self.params["previous_score_value"], context, "previous_score_value"
+            self.params["previous_score_value"],
+            context,
+            "previous_score_value",
         )
         if previous_score_value is not None:
             try:
@@ -209,7 +241,16 @@ class BudgetCategoryAmountWidget(BaseWidget):
     """
 
     widget_type: Literal["budget_category_amount"] = "budget_category_amount"
-    params: dict[Literal["category_name", "amount", "currency", "period_type", "target_date"], ParameterValue]
+    params: dict[
+        Literal[
+            "category_name",
+            "amount",
+            "currency",
+            "period_type",
+            "target_date",
+        ],
+        ParameterValue,
+    ]
 
     @property
     def signature_schema(self) -> SignatureSchema:
@@ -247,19 +288,37 @@ class BudgetCategoryAmountWidget(BaseWidget):
 
     def populate_widget(self, context: dict) -> dict:
         widget = super().populate_widget(context)
-        category_name = self._extract_parameter_value(self.params["category_name"], context, "category_name")
-        amount = self._extract_parameter_value(self.params["amount"], context, "amount")
-        currency = self._extract_parameter_value(self.params["currency"], context, "currency")
-        period_type = self._extract_parameter_value(self.params["period_type"], context, "period_type")
-        target_date = self._extract_parameter_value(self.params["target_date"], context, "target_date")
+        category_name = self._extract_parameter_value(
+            self.params["category_name"],
+            context,
+            "category_name",
+        )
+        amount = self._extract_parameter_value(
+            self.params["amount"],
+            context,
+            "amount",
+        )
+        currency = self._extract_parameter_value(
+            self.params["currency"],
+            context,
+            "currency",
+        )
+        period_type = self._extract_parameter_value(
+            self.params["period_type"],
+            context,
+            "period_type",
+        )
+        target_date = self._extract_parameter_value(
+            self.params["target_date"],
+            context,
+            "target_date",
+        )
 
         widget["category_name"] = category_name
         widget["amount"] = int(amount)
         widget["currency"] = currency
         widget["period_type"] = period_type
-        widget["target_date"] = (
-            target_date if target_date is None else datetime.strptime(target_date, "%Y-%m-%d").date()
-        )
+        widget["target_date"] = date_or_none(target_date)
         return widget
 
 
@@ -277,7 +336,16 @@ class CreditCardSummaryWidget(BaseWidget):
     """
 
     widget_type: Literal["credit_card_summary"] = "credit_card_summary"
-    params: dict[Literal["bank_name", "bank_logo", "card_id", "card_last_digits", "amount"], ParameterValue]
+    params: dict[
+        Literal[
+            "bank_name",
+            "bank_logo",
+            "card_id",
+            "card_last_digits",
+            "amount",
+        ],
+        ParameterValue,
+    ]
 
     @property
     def signature_schema(self) -> SignatureSchema:
@@ -313,11 +381,31 @@ class CreditCardSummaryWidget(BaseWidget):
 
     def populate_widget(self, context: dict) -> dict:
         widget = super().populate_widget(context)
-        bank_name = self._extract_parameter_value(self.params["bank_name"], context, "bank_name")
-        bank_logo = self._extract_parameter_value(self.params["bank_logo"], context, "bank_logo")
-        card_id = self._extract_parameter_value(self.params["card_id"], context, "card_id")
-        card_last_digits = self._extract_parameter_value(self.params["card_last_digits"], context, "card_last_digits")
-        amount = self._extract_parameter_value(self.params["amount"], context, "amount")
+        bank_name = self._extract_parameter_value(
+            self.params["bank_name"],
+            context,
+            "bank_name",
+        )
+        bank_logo = self._extract_parameter_value(
+            self.params["bank_logo"],
+            context,
+            "bank_logo",
+        )
+        card_id = self._extract_parameter_value(
+            self.params["card_id"],
+            context,
+            "card_id",
+        )
+        card_last_digits = self._extract_parameter_value(
+            self.params["card_last_digits"],
+            context,
+            "card_last_digits",
+        )
+        amount = self._extract_parameter_value(
+            self.params["amount"],
+            context,
+            "amount",
+        )
 
         widget["bank_name"] = bank_name
         widget["bank_logo"] = bank_logo
@@ -343,7 +431,15 @@ class PaymentReminderWidget(BaseWidget):
 
     widget_type: Literal["payment_reminder"] = "payment_reminder"
     params: dict[
-        Literal["bank_name", "bank_logo", "card_id", "card_last_digits", "payment_amount", "due_date"], ParameterValue
+        Literal[
+            "bank_name",
+            "bank_logo",
+            "card_id",
+            "card_last_digits",
+            "payment_amount",
+            "due_date",
+        ],
+        ParameterValue,
     ]
 
     @property
@@ -385,19 +481,43 @@ class PaymentReminderWidget(BaseWidget):
 
     def populate_widget(self, context: dict) -> dict:
         widget = super().populate_widget(context)
-        bank_name = self._extract_parameter_value(self.params["bank_name"], context, "bank_name")
-        bank_logo = self._extract_parameter_value(self.params["bank_logo"], context, "bank_logo")
-        card_id = self._extract_parameter_value(self.params["card_id"], context, "card_id")
-        card_last_digits = self._extract_parameter_value(self.params["card_last_digits"], context, "card_last_digits")
-        payment_amount = self._extract_parameter_value(self.params["payment_amount"], context, "payment_amount")
-        due_date = self._extract_parameter_value(self.params["due_date"], context, "due_date")
+        bank_name = self._extract_parameter_value(
+            self.params["bank_name"],
+            context,
+            "bank_name",
+        )
+        bank_logo = self._extract_parameter_value(
+            self.params["bank_logo"],
+            context,
+            "bank_logo",
+        )
+        card_id = self._extract_parameter_value(
+            self.params["card_id"],
+            context,
+            "card_id",
+        )
+        card_last_digits = self._extract_parameter_value(
+            self.params["card_last_digits"],
+            context,
+            "card_last_digits",
+        )
+        payment_amount = self._extract_parameter_value(
+            self.params["payment_amount"],
+            context,
+            "payment_amount",
+        )
+        due_date = self._extract_parameter_value(
+            self.params["due_date"],
+            context,
+            "due_date",
+        )
 
         widget["bank_name"] = bank_name
         widget["bank_logo"] = bank_logo
         widget["card_id"] = card_id
         widget["card_last_digits"] = card_last_digits
         widget["payment_amount"] = int(payment_amount)
-        widget["due_date"] = due_date if due_date is None else datetime.strptime(due_date, "%Y-%m-%d").date()
+        widget["due_date"] = date_or_none(due_date)
         return widget
 
 
@@ -420,7 +540,14 @@ class BudgetAlertWidget(BaseWidget):
 
     widget_type: Literal["budget_alert"] = "budget_alert"
     params: dict[
-        Literal["category_name", "category_icon", "spent_amount", "period_type", "target_date", "alert_type"],
+        Literal[
+            "category_name",
+            "category_icon",
+            "spent_amount",
+            "period_type",
+            "target_date",
+            "alert_type",
+        ],
         ParameterValue,
     ]
 
@@ -458,26 +585,49 @@ class BudgetAlertWidget(BaseWidget):
                 "alert_type": ParameterSchema(
                     name="alert_type",
                     data_type=ParameterTypeEnum.STR,
-                    required=True,
+                    required=False,
+                    default="warning",
                 ),
             }
         )
 
     def populate_widget(self, context: dict) -> dict:
         widget = super().populate_widget(context)
-        category_name = self._extract_parameter_value(self.params["category_name"], context, "category_name")
-        category_icon = self._extract_parameter_value(self.params["category_icon"], context, "category_icon")
-        spent_amount = self._extract_parameter_value(self.params["spent_amount"], context, "spent_amount")
-        period_type = self._extract_parameter_value(self.params["period_type"], context, "period_type")
-        target_date = self._extract_parameter_value(self.params["target_date"], context, "target_date")
-        alert_type = self._extract_parameter_value(self.params["alert_type"], context, "alert_type")
+        category_name = self._extract_parameter_value(
+            self.params["category_name"],
+            context,
+            "category_name",
+        )
+        category_icon = self._extract_parameter_value(
+            self.params["category_icon"],
+            context,
+            "category_icon",
+        )
+        spent_amount = self._extract_parameter_value(
+            self.params["spent_amount"],
+            context,
+            "spent_amount",
+        )
+        period_type = self._extract_parameter_value(
+            self.params["period_type"],
+            context,
+            "period_type",
+        )
+        target_date = self._extract_parameter_value(
+            self.params["target_date"],
+            context,
+            "target_date",
+        )
+        alert_type = self._extract_parameter_value(
+            self.params["alert_type"],
+            context,
+            "alert_type",
+        )
         widget["category_name"] = category_name
         widget["category_icon"] = category_icon
         widget["spent_amount"] = int(spent_amount)
         widget["period_type"] = period_type
-        widget["target_date"] = (
-            target_date if target_date is None else datetime.strptime(target_date, "%Y-%m-%d").date()
-        )
+        widget["target_date"] = date_or_none(target_date)
         widget["alert_type"] = alert_type
         return widget
 
@@ -499,27 +649,65 @@ class DebtFreeTimeWidget(BaseWidget):
     """
 
     widget_type: Literal["debt_free_time"] = "debt_free_time"
-    params: dict[Literal["years", "months", "card_id", "payment_strategy"], ParameterValue]
+    params: dict[
+        Literal[
+            "years",
+            "months",
+            "card_id",
+            "payment_strategy",
+        ],
+        ParameterValue,
+    ]
 
     @property
     def signature_schema(self) -> SignatureSchema:
         return SignatureSchema(
             parameters={
-                "years": ParameterSchema(name="years", data_type=ParameterTypeEnum.INT, required=True),
-                "months": ParameterSchema(name="months", data_type=ParameterTypeEnum.INT, required=True),
-                "card_id": ParameterSchema(name="card_id", data_type=ParameterTypeEnum.STR, required=True),
+                "years": ParameterSchema(
+                    name="years",
+                    data_type=ParameterTypeEnum.INT,
+                    required=True,
+                ),
+                "months": ParameterSchema(
+                    name="months",
+                    data_type=ParameterTypeEnum.INT,
+                    required=True,
+                ),
+                "card_id": ParameterSchema(
+                    name="card_id",
+                    data_type=ParameterTypeEnum.STR,
+                    required=True,
+                ),
                 "payment_strategy": ParameterSchema(
-                    name="payment_strategy", data_type=ParameterTypeEnum.STR, required=True
+                    name="payment_strategy",
+                    data_type=ParameterTypeEnum.STR,
+                    required=True,
                 ),
             }
         )
 
     def populate_widget(self, context: dict) -> dict:
         widget = super().populate_widget(context)
-        years = self._extract_parameter_value(self.params["years"], context, "years")
-        months = self._extract_parameter_value(self.params["months"], context, "months")
-        card_id = self._extract_parameter_value(self.params["card_id"], context, "card_id")
-        payment_strategy = self._extract_parameter_value(self.params["payment_strategy"], context, "payment_strategy")
+        years = self._extract_parameter_value(
+            self.params["years"],
+            context,
+            "years",
+        )
+        months = self._extract_parameter_value(
+            self.params["months"],
+            context,
+            "months",
+        )
+        card_id = self._extract_parameter_value(
+            self.params["card_id"],
+            context,
+            "card_id",
+        )
+        payment_strategy = self._extract_parameter_value(
+            self.params["payment_strategy"],
+            context,
+            "payment_strategy",
+        )
 
         widget["years"] = years
         widget["months"] = months

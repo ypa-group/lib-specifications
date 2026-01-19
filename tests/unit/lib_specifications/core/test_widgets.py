@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 
+from lib_specifications.catalog.trigger_registry.budget import BUDGET
 from lib_specifications.core.parameters import ParameterTypeEnum
 from lib_specifications.core.widgets import (
     BaseWidget,
@@ -465,6 +466,105 @@ class TestBudgetCategoryAmountWidget:
         assert result["currency"] == "USD"
         assert result["period_type"] == "month"
         assert result["target_date"] == date(2024, 12, 31)
+
+    def test_budget_customize_trigger_with_widget(self):
+        """Test budget__customize trigger with BudgetCategoryAmountWidget.
+
+        This test emulates how UI would bind trigger context fields to widget params.
+        The trigger context fields are at the root level of the context dict.
+        """
+        # Get the budget__customize trigger
+        trigger = BUDGET.CUSTOMIZE
+        assert trigger.fullname == "BUDGET__CUSTOMIZE"
+        assert trigger.context_schema is not None
+
+        # Verify trigger context schema matches widget signature
+        trigger_params = trigger.context_schema.parameters
+        assert "category_name" in trigger_params
+        assert "amount" in trigger_params
+        assert "currency" in trigger_params
+        assert "period_type" in trigger_params
+        assert "target_date" in trigger_params
+
+        # Create context matching trigger's context schema
+        # In real UI, trigger context fields are at root level
+        context = {
+            "category_name": "Groceries",
+            "amount": 750,
+            "currency": "USD",
+            "period_type": "month",
+            "target_date": "2024-06-15",
+        }
+
+        # Create widget with params bound to trigger context fields
+        # This emulates how UI would bind: widget params reference trigger context fields directly
+        widget_id = uuid4()
+        widget = BudgetCategoryAmountWidget(
+            id=widget_id,
+            params={
+                "category_name": {
+                    "parameter_type": "path",
+                    "data_type": ParameterTypeEnum.STR.label,
+                    "value": "category_name",  # Direct reference to trigger context field
+                },
+                "amount": {
+                    "parameter_type": "path",
+                    "data_type": ParameterTypeEnum.INT.label,
+                    "value": "amount",  # Direct reference to trigger context field
+                },
+                "currency": {
+                    "parameter_type": "path",
+                    "data_type": ParameterTypeEnum.STR.label,
+                    "value": "currency",  # Direct reference to trigger context field
+                },
+                "period_type": {
+                    "parameter_type": "path",
+                    "data_type": ParameterTypeEnum.STR.label,
+                    "value": "period_type",  # Direct reference to trigger context field
+                },
+                "target_date": {
+                    "parameter_type": "path",
+                    "data_type": ParameterTypeEnum.DATE.label,
+                    "value": "target_date",  # Direct reference to trigger context field
+                },
+            },
+        )
+
+        # Test widget creation - verify it has correct signature schema
+        signature = widget.signature_schema
+        assert signature.has_parameter("category_name")
+        assert signature.has_parameter("amount")
+        assert signature.has_parameter("currency")
+        assert signature.has_parameter("period_type")
+        assert signature.has_parameter("target_date")
+
+        # Test widget evaluation/population
+        result = widget.populate_widget(context)
+
+        # Verify populated widget values match trigger context
+        assert result["id"] == widget_id
+        assert result["widget_type"] == "budget_category_amount"
+        assert result["category_name"] == "Groceries"
+        assert result["amount"] == 750
+        assert result["currency"] == "USD"
+        assert result["period_type"] == "month"
+        assert result["target_date"] == date(2024, 6, 15)
+
+        # Test with optional fields as None
+        context_optional_none = {
+            "category_name": "Entertainment",
+            "amount": 200,
+            "currency": "EUR",
+            "period_type": None,
+            "target_date": None,
+        }
+
+        result_optional = widget.populate_widget(context_optional_none)
+        assert result_optional["category_name"] == "Entertainment"
+        assert result_optional["amount"] == 200
+        assert result_optional["currency"] == "EUR"
+        assert result_optional["period_type"] is None
+        assert result_optional["target_date"] is None
 
 
 class TestCreditCardSummaryWidget:
