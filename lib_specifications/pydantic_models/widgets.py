@@ -6,6 +6,16 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from ..core.widgets import (
+    BaseWidget,
+    BudgetAlertWidget,
+    BudgetCategoryAmountWidget,
+    CreditCardSummaryWidget,
+    CreditScoreValueWidget,
+    DebtFreeTimeWidget,
+    LanguageSelectorWidget,
+    PaymentReminderWidget,
+)
 from .parameter import PydanticParameterValue
 
 
@@ -305,3 +315,65 @@ class PydanticWidgetOutputValidator:
     def __get_pydantic_core_schema__(cls, source_type, handler):
         """Tell Pydantic how to handle this type when used in annotations."""
         return handler(PydanticWidgetOutput)
+
+
+# Mapping from widget classes to their Pydantic input/output model classes
+_WIDGET_TO_PYDANTIC_INPUT: dict[type[BaseWidget], type[BaseModel]] = {
+    LanguageSelectorWidget: PydanticLanguageSelectorWidgetInput,
+    CreditScoreValueWidget: PydanticCreditScoreValueWidgetInput,
+    BudgetCategoryAmountWidget: PydanticBudgetCategoryAmountWidgetInput,
+    CreditCardSummaryWidget: PydanticCreditCardSummaryWidgetInput,
+    PaymentReminderWidget: PydanticPaymentReminderWidgetInput,
+    BudgetAlertWidget: PydanticBudgetAlertWidgetInput,
+    DebtFreeTimeWidget: PydanticDebtFreeTimeWidgetInput,
+}
+
+_WIDGET_TO_PYDANTIC_OUTPUT: dict[type[BaseWidget], type[BaseModel]] = {
+    LanguageSelectorWidget: PydanticLanguageSelectorWidgetOutput,
+    CreditScoreValueWidget: PydanticCreditScoreValueWidgetOutput,
+    BudgetCategoryAmountWidget: PydanticBudgetCategoryAmountWidgetOutput,
+    CreditCardSummaryWidget: PydanticCreditCardSummaryWidgetOutput,
+    PaymentReminderWidget: PydanticPaymentReminderWidgetOutput,
+    BudgetAlertWidget: PydanticBudgetAlertWidgetOutput,
+    DebtFreeTimeWidget: PydanticDebtFreeTimeWidgetOutput,
+}
+
+
+def get_pydantic_widget_input_class(widget_class: type[BaseWidget]) -> type[BaseModel]:
+    """Get Pydantic input model class for a widget class.
+
+    Args:
+        widget_class: The widget class to get the Pydantic input model for
+
+    Returns:
+        The corresponding Pydantic input model class
+
+    Raises:
+        ValueError: If the widget class is not mapped to a Pydantic model
+    """
+    if widget_class not in _WIDGET_TO_PYDANTIC_INPUT:
+        raise ValueError(
+            f"Widget class {widget_class.__name__} is not mapped to a Pydantic input model. "
+            f"Available widget classes: {list(_WIDGET_TO_PYDANTIC_INPUT.keys())}"
+        )
+    return _WIDGET_TO_PYDANTIC_INPUT[widget_class]
+
+
+def get_pydantic_widget_output_class(widget_class: type[BaseWidget]) -> type[BaseModel]:
+    """Get Pydantic output model class for a widget class.
+
+    Args:
+        widget_class: The widget class to get the Pydantic output model for
+
+    Returns:
+        The corresponding Pydantic output model class
+
+    Raises:
+        ValueError: If the widget class is not mapped to a Pydantic model
+    """
+    if widget_class not in _WIDGET_TO_PYDANTIC_OUTPUT:
+        raise ValueError(
+            f"Widget class {widget_class.__name__} is not mapped to a Pydantic output model. "
+            f"Available widget classes: {list(_WIDGET_TO_PYDANTIC_OUTPUT.keys())}"
+        )
+    return _WIDGET_TO_PYDANTIC_OUTPUT[widget_class]

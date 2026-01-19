@@ -6,6 +6,16 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import ValidationError
 
+from lib_specifications.catalog.widget_registry import WIDGET_REGISTRY
+from lib_specifications.core.widgets import (
+    BudgetAlertWidget,
+    BudgetCategoryAmountWidget,
+    CreditCardSummaryWidget,
+    CreditScoreValueWidget,
+    DebtFreeTimeWidget,
+    LanguageSelectorWidget,
+    PaymentReminderWidget,
+)
 from lib_specifications.pydantic_models.widgets import (
     PydanticBudgetAlertWidgetInput,
     PydanticBudgetAlertWidgetOutput,
@@ -23,6 +33,8 @@ from lib_specifications.pydantic_models.widgets import (
     PydanticPaymentReminderWidgetOutput,
     PydanticWidgetInputValidator,
     PydanticWidgetOutputValidator,
+    get_pydantic_widget_input_class,
+    get_pydantic_widget_output_class,
 )
 
 
@@ -899,3 +911,150 @@ class TestPydanticWidgetDiscriminatedUnion:
         widget = PydanticWidgetOutputValidator.model_validate(mock_widget, from_attributes=True)
         assert isinstance(widget, PydanticCreditScoreValueWidgetOutput)
         assert widget.score_value == 720
+
+
+class TestPydanticWidgetClassMapping:
+    """Test mapping widget classes to Pydantic models."""
+
+    def test_get_pydantic_widget_input_class_language_selector(self):
+        """Test getting Pydantic input class for LanguageSelectorWidget."""
+        pydantic_class = get_pydantic_widget_input_class(LanguageSelectorWidget)
+        assert pydantic_class == PydanticLanguageSelectorWidgetInput
+
+    def test_get_pydantic_widget_input_class_credit_score_value(self):
+        """Test getting Pydantic input class for CreditScoreValueWidget."""
+        pydantic_class = get_pydantic_widget_input_class(CreditScoreValueWidget)
+        assert pydantic_class == PydanticCreditScoreValueWidgetInput
+
+    def test_get_pydantic_widget_input_class_budget_category_amount(self):
+        """Test getting Pydantic input class for BudgetCategoryAmountWidget."""
+        pydantic_class = get_pydantic_widget_input_class(BudgetCategoryAmountWidget)
+        assert pydantic_class == PydanticBudgetCategoryAmountWidgetInput
+
+    def test_get_pydantic_widget_input_class_credit_card_summary(self):
+        """Test getting Pydantic input class for CreditCardSummaryWidget."""
+        pydantic_class = get_pydantic_widget_input_class(CreditCardSummaryWidget)
+        assert pydantic_class == PydanticCreditCardSummaryWidgetInput
+
+    def test_get_pydantic_widget_input_class_payment_reminder(self):
+        """Test getting Pydantic input class for PaymentReminderWidget."""
+        pydantic_class = get_pydantic_widget_input_class(PaymentReminderWidget)
+        assert pydantic_class == PydanticPaymentReminderWidgetInput
+
+    def test_get_pydantic_widget_input_class_budget_alert(self):
+        """Test getting Pydantic input class for BudgetAlertWidget."""
+        pydantic_class = get_pydantic_widget_input_class(BudgetAlertWidget)
+        assert pydantic_class == PydanticBudgetAlertWidgetInput
+
+    def test_get_pydantic_widget_input_class_debt_free_time(self):
+        """Test getting Pydantic input class for DebtFreeTimeWidget."""
+        pydantic_class = get_pydantic_widget_input_class(DebtFreeTimeWidget)
+        assert pydantic_class == PydanticDebtFreeTimeWidgetInput
+
+    def test_get_pydantic_widget_input_class_invalid(self):
+        """Test that invalid widget class raises ValueError."""
+
+        # Create a mock widget class that's not in the mapping
+        class MockWidget:
+            pass
+
+        with pytest.raises(ValueError, match="is not mapped to a Pydantic input model"):
+            get_pydantic_widget_input_class(MockWidget)
+
+    def test_get_pydantic_widget_output_class_language_selector(self):
+        """Test getting Pydantic output class for LanguageSelectorWidget."""
+        pydantic_class = get_pydantic_widget_output_class(LanguageSelectorWidget)
+        assert pydantic_class == PydanticLanguageSelectorWidgetOutput
+
+    def test_get_pydantic_widget_output_class_credit_score_value(self):
+        """Test getting Pydantic output class for CreditScoreValueWidget."""
+        pydantic_class = get_pydantic_widget_output_class(CreditScoreValueWidget)
+        assert pydantic_class == PydanticCreditScoreValueWidgetOutput
+
+    def test_get_pydantic_widget_output_class_budget_category_amount(self):
+        """Test getting Pydantic output class for BudgetCategoryAmountWidget."""
+        pydantic_class = get_pydantic_widget_output_class(BudgetCategoryAmountWidget)
+        assert pydantic_class == PydanticBudgetCategoryAmountWidgetOutput
+
+    def test_get_pydantic_widget_output_class_credit_card_summary(self):
+        """Test getting Pydantic output class for CreditCardSummaryWidget."""
+        pydantic_class = get_pydantic_widget_output_class(CreditCardSummaryWidget)
+        assert pydantic_class == PydanticCreditCardSummaryWidgetOutput
+
+    def test_get_pydantic_widget_output_class_payment_reminder(self):
+        """Test getting Pydantic output class for PaymentReminderWidget."""
+        pydantic_class = get_pydantic_widget_output_class(PaymentReminderWidget)
+        assert pydantic_class == PydanticPaymentReminderWidgetOutput
+
+    def test_get_pydantic_widget_output_class_budget_alert(self):
+        """Test getting Pydantic output class for BudgetAlertWidget."""
+        pydantic_class = get_pydantic_widget_output_class(BudgetAlertWidget)
+        assert pydantic_class == PydanticBudgetAlertWidgetOutput
+
+    def test_get_pydantic_widget_output_class_debt_free_time(self):
+        """Test getting Pydantic output class for DebtFreeTimeWidget."""
+        pydantic_class = get_pydantic_widget_output_class(DebtFreeTimeWidget)
+        assert pydantic_class == PydanticDebtFreeTimeWidgetOutput
+
+    def test_get_pydantic_widget_output_class_invalid(self):
+        """Test that invalid widget class raises ValueError."""
+
+        # Create a mock widget class that's not in the mapping
+        class MockWidget:
+            pass
+
+        with pytest.raises(ValueError, match="is not mapped to a Pydantic output model"):
+            get_pydantic_widget_output_class(MockWidget)
+
+    def test_get_pydantic_classes_from_registry(self):
+        """Test getting Pydantic classes using widget registry."""
+        # Get widget class from registry
+        widget_class = WIDGET_REGISTRY.get_widget_class("budget_category_amount")
+        assert widget_class == BudgetCategoryAmountWidget
+
+        # Get Pydantic input class
+        pydantic_input_class = get_pydantic_widget_input_class(widget_class)
+        assert pydantic_input_class == PydanticBudgetCategoryAmountWidgetInput
+
+        # Get Pydantic output class
+        pydantic_output_class = get_pydantic_widget_output_class(widget_class)
+        assert pydantic_output_class == PydanticBudgetCategoryAmountWidgetOutput
+
+    def test_get_pydantic_classes_for_all_widgets(self):
+        """Test getting Pydantic classes for all registered widgets."""
+        from pydantic import BaseModel
+
+        all_widget_classes = WIDGET_REGISTRY.get_all_widget_classes()
+
+        # Test that we can get Pydantic input classes for all
+        for widget_class in all_widget_classes:
+            pydantic_input_class = get_pydantic_widget_input_class(widget_class)
+            assert pydantic_input_class is not None
+            assert issubclass(pydantic_input_class, BaseModel)
+
+            pydantic_output_class = get_pydantic_widget_output_class(widget_class)
+            assert pydantic_output_class is not None
+            assert issubclass(pydantic_output_class, BaseModel)
+
+    def test_pydantic_class_mapping_completeness(self):
+        """Test that all widget classes have corresponding Pydantic models."""
+        all_widget_classes = WIDGET_REGISTRY.get_all_widget_classes()
+
+        # Verify all widget classes are mapped
+        expected_mappings = {
+            LanguageSelectorWidget: (PydanticLanguageSelectorWidgetInput, PydanticLanguageSelectorWidgetOutput),
+            CreditScoreValueWidget: (PydanticCreditScoreValueWidgetInput, PydanticCreditScoreValueWidgetOutput),
+            BudgetCategoryAmountWidget: (
+                PydanticBudgetCategoryAmountWidgetInput,
+                PydanticBudgetCategoryAmountWidgetOutput,
+            ),
+            CreditCardSummaryWidget: (PydanticCreditCardSummaryWidgetInput, PydanticCreditCardSummaryWidgetOutput),
+            PaymentReminderWidget: (PydanticPaymentReminderWidgetInput, PydanticPaymentReminderWidgetOutput),
+            BudgetAlertWidget: (PydanticBudgetAlertWidgetInput, PydanticBudgetAlertWidgetOutput),
+            DebtFreeTimeWidget: (PydanticDebtFreeTimeWidgetInput, PydanticDebtFreeTimeWidgetOutput),
+        }
+
+        for widget_class in all_widget_classes:
+            expected_input, expected_output = expected_mappings[widget_class]
+            assert get_pydantic_widget_input_class(widget_class) == expected_input
+            assert get_pydantic_widget_output_class(widget_class) == expected_output

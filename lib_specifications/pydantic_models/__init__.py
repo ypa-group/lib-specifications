@@ -53,6 +53,8 @@ from .widgets import (
     PydanticWidgetInputValidator,
     PydanticWidgetOutput,
     PydanticWidgetOutputValidator,
+    get_pydantic_widget_input_class,
+    get_pydantic_widget_output_class,
 )
 
 
@@ -137,4 +139,6 @@ __all__ = [
     "PydanticWidgetInputValidator",
     "PydanticWidgetOutput",
     "PydanticWidgetOutputValidator",
+    "get_pydantic_widget_input_class",
+    "get_pydantic_widget_output_class",
 ]
